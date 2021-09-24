@@ -7,13 +7,10 @@ from gltflib.models.gltf_model import GLTFModel
 def nodeListDump(gltfObject: GLTFModel, showGCLNameExt=False, dumpFunc=print):
     defaultScene = gltfObject.model.scenes[0]
     rootNodes = defaultScene.nodes
-    
-    assert(len(rootNodes) == 1)
-    rootNode = rootNodes[0]
 
     # build dag
     nodeParent = {}
-    workingQueue = [rootNode]
+    workingQueue = [idx for idx in rootNodes]
     while len(workingQueue) > 0:
         workingNode = workingQueue.pop()
         if gltfObject.model.nodes[workingNode].children is not None:
@@ -30,7 +27,7 @@ def nodeListDump(gltfObject: GLTFModel, showGCLNameExt=False, dumpFunc=print):
 
     def getPath(node):
         result = f"{getName(node)}"
-        while node != rootNode:
+        while node not in rootNodes:
             node = nodeParent[node]
             result = f"{getName(node)}->{result}"
         return result
@@ -43,7 +40,8 @@ def nodeListDump(gltfObject: GLTFModel, showGCLNameExt=False, dumpFunc=print):
             for child in childs:
                 traverse(child)
     
-    traverse(rootNode)
+    for rootNode in rootNodes:
+        traverse(rootNode)
 
 
 if __name__ == "__main__":
